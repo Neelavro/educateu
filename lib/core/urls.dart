@@ -8,5 +8,6 @@ class ApiConstants {
 
 String studentEndpoint = 'student-auth/';
 String loginEndpoint = 'login/';
-String sendOtpPending = loginEndpoint+ 'with-otp/';
+String sendOtpEndPoint= studentEndpoint+loginEndpoint+ 'with-otp/';
 String securityQuestionEndpoint = studentEndpoint + "security-questions";
+String  changePasswordEndpoint = studentEndpoint + "change-password";

@@ -1,6 +1,8 @@
 
 
 
+import '../../domain/entities/security_question_entity.dart';
+
 class SecurityQuestion {
   final String id;
   final String question;

@@ -4,7 +4,10 @@ import 'package:educateu/core/textstyles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:heroicons/heroicons.dart';
+import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
+
+import '../../../providers/authentication_provider.dart';
 
 class OtpScreen extends StatefulWidget {
   final String email;
@@ -36,6 +39,7 @@ class _OtpScreenState extends State<OtpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final provider = context.watch<AuthenticationProvider>();
     return Scaffold(
       body: Container(
         height: 100.h,
@@ -243,40 +247,65 @@ class _OtpScreenState extends State<OtpScreen> {
                       SizedBox(height: 3.5.h),
 
                       // Verify button
-                      Container(
-                        alignment: Alignment.center,
-                        height: 48,
-                        width: 100.w,
-                        padding: const EdgeInsets.symmetric(
-                            horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          gradient: LinearGradient(
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                            stops: const [0.0, 0.68, 0.85, 1.0],
-                            colors: [
-                              AppColors.primary,
-                              AppColors.primary,
-                              Color.lerp(AppColors.primary, AppColors.bgInfo, 0.4)!
-                                  .withOpacity(0.88),
-                              AppColors.bgInfo.withOpacity(0.80),
-                            ],
-                            transform: const GradientRotation(-0.3),
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.white.withOpacity(0.40),
-                              offset: const Offset(0, -2),
-                              blurRadius: 2,
-                              blurStyle: BlurStyle.inner,
+                      InkWell(
+                        onTap:  provider.isLoading
+                            ? null
+                            : () {
+                          final otp = _controllers.map((c) => c.text).join();
+                          if (otp.length < 4) {
+                            provider.showToast(context, 'Please enter the complete 4-digit code', isSuccess: false);
+                            return;
+                          }
+
+                          provider.loginOtp(context, {
+                            'username': widget.email,
+                            'otp': otp,
+                          });
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          height: 48,
+                          width: 100.w,
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            gradient: LinearGradient(
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                              stops: const [0.0, 0.68, 0.85, 1.0],
+                              colors: [
+                                AppColors.primary,
+                                AppColors.primary,
+                                Color.lerp(AppColors.primary, AppColors.bgInfo, 0.4)!
+                                    .withOpacity(0.88),
+                                AppColors.bgInfo.withOpacity(0.80),
+                              ],
+                              transform: const GradientRotation(-0.3),
                             ),
-                          ],
-                        ),
-                        child: Text(
-                          "Verify & Continue",
-                          style: AppTextStyles.labelLargeEmphasized
-                              .copyWith(color: AppColors.textInverse),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.white.withOpacity(0.40),
+                                offset: const Offset(0, -2),
+                                blurRadius: 2,
+                                blurStyle: BlurStyle.inner,
+                              ),
+                            ],
+                          ),
+                          child:  provider.isLoading
+                              ? const SizedBox(
+                            height: 18,
+                            width: 18,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                              :Text(
+                            "Verify & Continue",
+                            style: AppTextStyles.labelLargeEmphasized
+                                .copyWith(color: AppColors.textInverse),
+                          ),
                         ),
                       ),
                       SizedBox(height: 2.h),

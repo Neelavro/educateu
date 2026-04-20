@@ -32,7 +32,7 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _login(BuildContext context) async {
     final provider = context.read<AuthenticationProvider>();
 
-    await provider.login({
+    await provider.login(context,{
       'email': emailController.text.trim(),
       'password': passwordController.text.trim(),
     });
@@ -45,11 +45,13 @@ class _LoginScreenState extends State<LoginScreen> {
       );
     } else {
       if(provider.student!.isTemporaryPassword){
-        context.push("/account-activate");
+        context.push("/account-activate",extra: provider);
       }
       if(provider.student!.mfaEnabled)
-        context.push("/otp");
-    }
+        context.push('/otp', extra: {
+          'email': emailController.text,
+          'provider': context.read<AuthenticationProvider>(),
+        });    }
   }
 
   @override

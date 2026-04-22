@@ -28,7 +28,7 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
 
       if (response.statusCode == 200) {
         final StudentEntity s = Student.fromJson(json).toEntity();
-        currentStudent.value = s;
+
         return Right(s);
       }
 
@@ -101,7 +101,7 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
   }
 
   @override
-  Future<Either<String, String>> loginOtp(Map<String, dynamic> payload) async {
+  Future<Either<String, StudentEntity>> loginOtp(Map<String, dynamic> payload) async {
     try {
       final url = Uri.parse(
         '${ApiConstants.authBaseUrl}${sendOtpEndPoint}',
@@ -119,8 +119,10 @@ class AuthenticationRepositoryImpl implements AuthenticationRepository {
 
       final json = jsonDecode(response.body) as Map<String, dynamic>;
 
-      if (json["statusCode"] == 200) {
-        return Right(json['message']);
+      if (response.statusCode == 200) {
+        final StudentEntity s = Student.fromJson(json).toEntity();
+
+        return Right(s);
       }
 
       return Left(json['message'] as String? ?? 'Login failed');

@@ -1,5 +1,6 @@
 import 'package:educateu/injection_container.dart';
 import 'package:educateu/providers/authentication_provider.dart';
+import 'package:educateu/providers/profile_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:provider/provider.dart';
@@ -22,6 +23,7 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => getIt<AuthenticationProvider>()),
+        ChangeNotifierProvider(create: (_) => getIt<ProfileProvider>()),
       ],
       child: Sizer(
         builder: (context, orientation, deviceType) {

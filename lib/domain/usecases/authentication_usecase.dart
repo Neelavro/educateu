@@ -18,7 +18,7 @@ class AuthenticationUseCase {
   Future<Either<String, String>> changePassword(Map<String, dynamic> payload) {
     return repository.changePassword(payload);
   }
-  Future<Either<String, String>> loginOtp(Map<String, dynamic> payload) {
+  Future<Either<String, StudentEntity>> loginOtp(Map<String, dynamic> payload) {
     return repository.loginOtp(payload);
   }
 }

@@ -48,9 +48,8 @@ class ProfileRepositoryImpl extends ProfileRepository {
 
   Future<Either<String, String>> _getFileUrl(String filePath) async {
     try {
-      final encodedPath = Uri.encodeComponent(filePath);
       final url = Uri.parse(
-        '${ApiConstants.authBaseUrl}$studentPortalEndpoint$encodedPath',
+        '${ApiConstants.authBaseUrl}$studentPortalEndpoint${filePath.substring(1,filePath.length)}',
       );
 
       final response = await http.get(
@@ -62,14 +61,43 @@ class ProfileRepositoryImpl extends ProfileRepository {
       );
 
       final json = jsonDecode(response.body) as Map<String, dynamic>;
-
       if (json['statusCode'] == 200) {
+        print(json['data']['url']);
         return Right(json['data']['url'] as String);
       }
+
 
       return Left(json['message'] as String? ?? 'Failed to get file URL');
     } catch (e) {
       return Left(e.toString());
     }
   }
+  @override
+  Future<Either<String, String>> updateProfile(Map<String, dynamic> payload) async {
+    try {
+      final url = Uri.parse(
+        '${ApiConstants.authBaseUrl}$profileEndpoint',
+      );
+
+      final response = await http.put(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ${currentStudent.value.accessToken}',
+        },
+        body: jsonEncode(payload)
+      );
+
+      final json = jsonDecode(response.body) as Map<String, dynamic>;
+
+      if (json['statusCode'] == 200) {
+        return Right(json['message']);
+      }
+
+      return Left(json['message'] as String? ?? 'Failed to fetch profile');
+    } catch (e) {
+      return Left(e.toString());
+    }
+  }
+
 }

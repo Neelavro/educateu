@@ -10,4 +10,7 @@ class ProfileUseCase {
   Future<Either<String, ProfileEntity>> getProfile() {
     return profileRepository.getProfile();
   }
+  Future<Either<String, String>> updateProfile(Map<String, dynamic> payload) {
+    return profileRepository.updateProfile(payload);
+  }
 }

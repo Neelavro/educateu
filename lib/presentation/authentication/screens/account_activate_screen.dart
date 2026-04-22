@@ -40,6 +40,13 @@ class _AccountActivateScreenState extends State<AccountActivateScreen> {
       _hasSpecialChar = value.contains(RegExp(r'[!@#\$%\^&\*]'));
     });
   }
+  @override
+  void dispose() {
+    confirmPasswordController.dispose();
+    passwordController.dispose();
+    answerController.dispose();
+    super.dispose();
+  }
 
   @override
   void initState() {

@@ -31,7 +31,11 @@ class AuthenticationProvider extends ChangeNotifier {
             errorMessage = failure;
             showToast(context, errorMessage!, isSuccess: false);
           },
-          (data) => student = data,
+          (data) {
+        student = data;
+        showToast(context, 'Login Successful'
+            , isSuccess: true);
+      },
     );
 
     isLoading = false;

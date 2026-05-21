@@ -1,6 +1,5 @@
 import 'package:educateu/core/colors.dart';
 import 'package:educateu/core/textstyles.dart';
-import 'package:educateu/presentation/onboarding/widget/rounded_check_box_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:heroicons/heroicons.dart';
@@ -8,6 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../providers/authentication_provider.dart';
+import '../widget/rounded_check_box_widget.dart';
 import '../widget/rounded_text_field_widget.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -29,27 +29,42 @@ class _LoginScreenState extends State<LoginScreen> {
     passwordController.dispose();
     super.dispose();
   }
+
   Future<void> _login(BuildContext context) async {
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+
     final provider = context.read<AuthenticationProvider>();
 
-    await provider.login({
-      'email': emailController.text.trim(),
-      'password': passwordController.text.trim(),
+    // Validation
+    if (email.isEmpty || password.isEmpty) {
+      provider.showToast(context, 'Please fill in all fields', isSuccess: false);
+      return;
+    }
+
+    final emailRegex = RegExp(r'^[\w.-]+@[\w.-]+\.\w{2,}$');
+    if (!emailRegex.hasMatch(email)) {
+      provider.showToast(context, 'Please enter a valid email address', isSuccess: false);
+      return;
+    }
+
+    await provider.login(context, {
+      'email': email,
+      'password': password,
     });
 
     if (!mounted) return;
 
-    if (provider.errorMessage != null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(provider.errorMessage!)),
-      );
-    } else {
-      if(provider.student!.isTemporaryPassword){
-        context.push("/account-activate");
-      }
-      if(provider.student!.mfaEnabled)
-        context.push("/otp");
+    if (provider.student!.isTemporaryPassword) {
+      context.push("/account-activate", extra: provider);
     }
+    if (provider.student!.mfaEnabled)
+      context.push('/otp', extra: {
+        'email': email,
+        'provider': context.read<AuthenticationProvider>(),
+      });
+    else
+      context.go('/explore');
   }
 
   @override
@@ -164,8 +179,9 @@ class _LoginScreenState extends State<LoginScreen> {
                         backgroundColor: AppColors.bgTertiary,
                         hintText: "Enter your password",
                         obscureText: true,
-                        icon: HeroIcons.lockClosed,
                         suffixIcon: HeroIcons.eye,
+                        icon: HeroIcons.lockClosed,
+
                         iconColor: AppColors.iconTertiary,
                         textColor: AppColors.textTertiary,
                         onChanged: (value) {

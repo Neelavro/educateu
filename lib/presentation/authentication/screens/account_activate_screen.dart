@@ -1,9 +1,12 @@
+import 'package:educateu/domain/entities/security_question_entity.dart';
 import 'package:flutter/material.dart';
 import 'package:heroicons/heroicons.dart';
+import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
 
 import '../../../core/colors.dart';
 import '../../../core/textstyles.dart';
+import '../../../providers/authentication_provider.dart';
 import '../widget/rounded_check_box_widget.dart';
 import '../widget/rounded_drop_down_widget.dart';
 import '../widget/rounded_text_field_widget.dart';
@@ -17,14 +20,14 @@ class AccountActivateScreen extends StatefulWidget {
 
 class _AccountActivateScreenState extends State<AccountActivateScreen> {
   TextEditingController passwordController = TextEditingController();
-  TextEditingController confirmPasswordController = TextEditingController();
-  // Add this to your state variables
+  final TextEditingController confirmPasswordController = TextEditingController();
+  final TextEditingController answerController = TextEditingController();
   bool _hasMinLength = false;
   bool _hasUppercase = false;
   bool _hasLowercase = false;
   bool _hasNumber = false;
   bool _hasSpecialChar = false;
-  String? _selectedValue;
+  SecurityQuestionEntity? _selectedValue;
   bool isChecked = false;
 
 // Add this method to your state class
@@ -38,9 +41,37 @@ class _AccountActivateScreenState extends State<AccountActivateScreen> {
     });
   }
   @override
+  void dispose() {
+    confirmPasswordController.dispose();
+    passwordController.dispose();
+    answerController.dispose();
+    super.dispose();
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AuthenticationProvider>().getSecurityQuestions();
+    });
+  }
+  @override
   Widget build(BuildContext context) {
+    final provider = context.watch<AuthenticationProvider>();
+
     return Scaffold(
-      body: Container(
+      body: provider.isLoading
+    ? const SizedBox(
+
+      child: Center(
+        child: CircularProgressIndicator(
+          color: AppColors.primary,
+          strokeWidth: 3,
+        ),
+      ),
+    )
+        : Container(
         height: 100.h,
         width: 100.w,
         decoration: const BoxDecoration(
@@ -60,14 +91,19 @@ class _AccountActivateScreenState extends State<AccountActivateScreen> {
           child: SingleChildScrollView(
             child: Column(
               children: [
-                SizedBox(height: 11.h),
-                Container(
-                    height: 5.7.h,
-                  child: Row(
-                    children: [
-                      Icon(Icons.arrow_back_ios, size: 20, color: AppColors.bgBlackSolid,),
-                      Text('Back to Sign in', style: AppTextStyles.bodyMediumEmphasized.copyWith(color: AppColors.bgBlackSolid),)
-                    ],
+                SizedBox(height: 7.h),
+                InkWell(
+                  onTap: (){
+                    Navigator.pop(context);
+                  },
+                  child: Container(
+                      height: 5.7.h,
+                    child: Row(
+                      children: [
+                        Icon(Icons.arrow_back_ios, size: 20, color: AppColors.bgBlackSolid,),
+                        Text('Back to Sign in', style: AppTextStyles.bodyMediumEmphasized.copyWith(color: AppColors.bgBlackSolid),)
+                      ],
+                    ),
                   ),
                 ),
                 SizedBox(height: 2.h,),
@@ -168,7 +204,7 @@ class _AccountActivateScreenState extends State<AccountActivateScreen> {
                       SizedBox(height: 0.5.h,),
 
                       RoundedTextField(
-                        controller: passwordController,
+                        controller: confirmPasswordController,
                         backgroundColor: AppColors.bgTertiary,
                         hintText: "e.g., 2021045678",
                         obscureText: true,
@@ -177,7 +213,9 @@ class _AccountActivateScreenState extends State<AccountActivateScreen> {
                         iconColor: AppColors.iconTertiary,
                         textColor: AppColors.textTertiary,
                         onChanged: (value) {
-                          _validatePassword(value);
+                          setState(() {
+
+                          });
                         },
                       ),
                       SizedBox(height: 1.h),
@@ -189,19 +227,14 @@ class _AccountActivateScreenState extends State<AccountActivateScreen> {
                         ),
                       ),
                       SizedBox(height: 0.5.h),
-                      RoundedDropdown<String>(
+                      RoundedDropdown<SecurityQuestionEntity>(
                         value: _selectedValue,
                         backgroundColor: AppColors.bgTertiary,
                         iconColor: AppColors.iconTertiary,
                         textColor: AppColors.textTertiary,
                         hintText: 'What was the make of your first car?',
-                        items: ['What was the name of your first pet?',
-                          'What city were you born in?',
-                          'What is your mother\'s maiden name?',
-                          'What was the name of your first school?',
-                          'What was your childhood nickname?',
-                          'What is the name of the street you grew up on?']
-                            .map((e) => DropdownMenuItem(value: e, child: Text(e)))
+                        items: provider.securityQuestions
+                            .map((e) => DropdownMenuItem(value: e, child: Text(e.question)))
                             .toList(),
                         onChanged: (value) {
                           setState(() => _selectedValue = value);
@@ -217,7 +250,7 @@ class _AccountActivateScreenState extends State<AccountActivateScreen> {
                       ),
                       SizedBox(height: 0.5.h),
                       RoundedTextField(
-                        controller: passwordController,
+                        controller: answerController,
                         backgroundColor: AppColors.bgTertiary,
                         hintText: "e.g.,Tuition",
                         icon: null,
@@ -261,35 +294,77 @@ class _AccountActivateScreenState extends State<AccountActivateScreen> {
                         ],
                       ),
                       SizedBox(height: 4.h),
-                      Container(
-                        alignment: Alignment.center,
-                        height: 40,
-                        width: 100.w,
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          gradient: LinearGradient(
-                            begin: Alignment.centerLeft,
-                            end: Alignment.centerRight,
-                            stops: const [0.0, 0.68, 0.85, 1.0],
-                            colors: [
-                              AppColors.primary,
-                              AppColors.primary,
-                              Color.lerp(AppColors.primary, AppColors.bgInfo, 0.4)!.withOpacity(0.88),
-                              AppColors.bgInfo.withOpacity(0.80),
-                            ],
-                            transform: const GradientRotation(-0.3), // slight diagonal tilt on the blend
-                          ),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.white.withOpacity(0.40),
-                              offset: const Offset(0, -2),
-                              blurRadius: 2,
-                              blurStyle: BlurStyle.inner,
+                      InkWell(
+                        onTap:provider.isLoading
+                            ? null
+                            : () {
+                          if (!_hasMinLength || !_hasUppercase || !_hasLowercase || !_hasNumber || !_hasSpecialChar) {
+                            provider.showToast(context, 'Password does not meet the required criteria', isSuccess: false);
+                            return;
+                          }
+
+                          if (passwordController.text != confirmPasswordController.text) {
+                            provider.showToast(context, 'Passwords do not match', isSuccess: false);
+                            return;
+                          }
+
+                          if (!isChecked) {
+                            provider.showToast(context, 'Please accept the Terms of Service and Privacy Policy', isSuccess: false);
+                            return;
+                          }
+
+                          final payload = <String, dynamic>{
+                            "currentPassword": provider.tempPassword,
+                            'newPassword': passwordController.text,
+                            'confirmPassword': confirmPasswordController.text,
+                          };
+
+                          if (_selectedValue != null && answerController.text.isNotEmpty) {
+                            payload['securityQuestionId'] = _selectedValue!.id;
+                            payload['securityQuestionAnswer'] = answerController.text;
+                          }
+
+                          context.read<AuthenticationProvider>().changePassword(context, payload);
+                        },
+                        child: Container(
+                          alignment: Alignment.center,
+                          height: 40,
+                          width: 100.w,
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            gradient: LinearGradient(
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                              stops: const [0.0, 0.68, 0.85, 1.0],
+                              colors: [
+                                AppColors.primary,
+                                AppColors.primary,
+                                Color.lerp(AppColors.primary, AppColors.bgInfo, 0.4)!.withOpacity(0.88),
+                                AppColors.bgInfo.withOpacity(0.80),
+                              ],
+                              transform: const GradientRotation(-0.3), // slight diagonal tilt on the blend
                             ),
-                          ],
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.white.withOpacity(0.40),
+                                offset: const Offset(0, -2),
+                                blurRadius: 2,
+                                blurStyle: BlurStyle.inner,
+                              ),
+                            ],
+                          ),
+                          child: provider.isLoading
+                        ? const SizedBox(
+                        height: 18,
+                          width: 18,
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
+                        )
+                            :Text("Confirm",style: AppTextStyles.labelLargeEmphasized.copyWith(color: AppColors.textInverse),),
                         ),
-                        child: Text("Confirm",style: AppTextStyles.labelLargeEmphasized.copyWith(color: AppColors.textInverse),),
                       ),
                     ],
 

@@ -2,7 +2,7 @@ import 'package:educateu/core/textstyles.dart';
 import 'package:flutter/material.dart';
 import 'package:heroicons/heroicons.dart';
 
-class RoundedTextField extends StatelessWidget {
+class RoundedTextField extends StatefulWidget {
   final TextEditingController controller;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
@@ -45,49 +45,54 @@ class RoundedTextField extends StatelessWidget {
   });
 
   @override
+  State<RoundedTextField> createState() => _RoundedTextFieldState();
+}
+
+class _RoundedTextFieldState extends State<RoundedTextField> {
+  late bool _obscure;
+
+  @override
+  void initState() {
+    super.initState();
+    _obscure = widget.obscureText;
+  }
+
+  @override
   Widget build(BuildContext context) {
     return TextField(
-      controller: controller,
-      onChanged: onChanged,
-      onSubmitted: onSubmitted,
-      keyboardType: keyboardType,
-      obscureText: obscureText,
-      readOnly: readOnly,
-      enabled: enabled,
-      maxLines: maxLines,
-
+      controller: widget.controller,
+      onChanged: widget.onChanged,
+      onSubmitted: widget.onSubmitted,
+      keyboardType: widget.keyboardType,
+      obscureText: _obscure,
+      readOnly: widget.readOnly,
+      enabled: widget.enabled,
+      maxLines: widget.maxLines,
       decoration: InputDecoration(
-        hintText: hintText,
-        hintStyle: AppTextStyles.bodyMedium.copyWith(color: textColor),
-
-
-        prefixIcon:icon != null? HeroIcon(
-          icon!,
-          size: iconSize,
-          color: iconColor,
-        ): null,
-
-        suffixIcon: suffixIcon != null
-            ? HeroIcon(
-          suffixIcon!,
-          size: iconSize,
-          color: iconColor,
+        hintText: widget.hintText,
+        hintStyle: AppTextStyles.bodyMedium.copyWith(color: widget.textColor),
+        prefixIcon: widget.icon != null
+            ? HeroIcon(widget.icon!, size: widget.iconSize, color: widget.iconColor)
+            : null,
+        suffixIcon: widget.suffixIcon != null
+            ? GestureDetector(
+          onTap: widget.obscureText // only toggle if field is a password field
+              ? () => setState(() => _obscure = !_obscure)
+              : null,
+          child: HeroIcon(
+            _obscure ? widget.suffixIcon! : HeroIcons.eyeSlash,
+            size: widget.iconSize,
+            color: widget.iconColor,
+          ),
         )
             : null,
-
         filled: true,
-        fillColor: backgroundColor,
-
-        contentPadding: const EdgeInsets.symmetric(
-          vertical: 0,
-          horizontal: 12,
-        ),
-
+        fillColor: widget.backgroundColor,
+        contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 12),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
           borderSide: BorderSide.none,
         ),
-
       ),
     );
   }

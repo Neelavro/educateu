@@ -7,13 +7,14 @@ class AppColors {
   //primary primary
 
   static const Color primary          = Color(0xFF013E5B);
+  static const Color pillColor          = Color(0xFF90EFEF);
 
   // ─── Text ───────────────────────────────────────────
 
 
 
   static const Color textPrimary          = Color(0xFF050505);
-  static const Color textSecondary        = Color(0xFF6B7280);
+  static const Color textSecondary         = Color(0xFF6B7280);
   static const Color textTertiary         = Color(0xFF64748B);
   static const Color textDisabled         = Color(0xFFD1D5DB);
   static const Color textInverse          = Color(0xFFFFFFFF);
@@ -37,6 +38,7 @@ class AppColors {
   static const Color bgWarning            = Color(0xFFF59E0B);
   static const Color bgWarningPrimary      = Color(0xFFFFEDD5);
   static const Color bgSuccess            = Color(0xFF10B981);
+  static const Color bgGreen            = Color(0xFF006A6A);
   static const Color bgInfo               = Color(0xFF3B82F6);
   static const Color bgInfoPrimary        = Color(0xFFEFF6FF);
   static const Color bgBlackSolid         = Color(0xFF0F172A);

@@ -1,3 +1,7 @@
+import 'package:educateu/presentation/course/screens/course_detail_screen.dart';
+import 'package:educateu/presentation/course/screens/courses_screen.dart';
+import 'package:educateu/presentation/course/screens/lesson_player_screen.dart';
+import 'package:educateu/presentation/dashboard/screens/explore_screen.dart';
 import 'package:educateu/presentation/onboarding/splash_screen.dart';
 import 'package:educateu/presentation/profile/screens/notification_screen.dart';
 import 'package:educateu/presentation/profile/screens/privacy_setting_screen.dart';
@@ -58,13 +62,31 @@ final appRouter = GoRouter(
         StatefulShellBranch(routes: [
           GoRoute(
             path: '/explore',
-            builder: (context, state) => const Scaffold(body: Center(child: Text('Explore'))),
+            builder: (context, state) => const ExploreScreen(),
           ),
         ]),
         StatefulShellBranch(routes: [
           GoRoute(
             path: '/courses',
-            builder: (context, state) => const Scaffold(body: Center(child: Text('Courses'))),
+            builder: (context, state) => const CoursesScreen(),
+            routes: [
+              GoRoute(
+                path: 'overview',
+                builder: (context, state) {
+                  final extra = state.extra as Map<String, dynamic>;
+                  return CourseDetailScreen(
+                    title: extra['title'] as String,
+                    type: extra['type'] as String,
+                    instructor: extra['instructor'] as String,
+                    progress: extra['progress'] as int,
+                  );
+                },
+              ),
+              GoRoute(
+                path: 'lesson',
+                builder: (context, state) => const LessonPlayerScreen(),
+              ),
+            ],
           ),
         ]),
         StatefulShellBranch(routes: [

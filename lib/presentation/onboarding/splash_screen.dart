@@ -122,7 +122,7 @@ class _SplashScreenState extends State<SplashScreen>
   void _navigateAfterLoad() {
     final provider = context.read<AuthenticationProvider>();
     if (provider.student != null) {
-      context.go('/profile');
+      context.go('/courses');
     } else {
       context.go('/login');
     }

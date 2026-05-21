@@ -3,6 +3,7 @@ import 'package:educateu/core/colors.dart';
 import 'package:educateu/core/textstyles.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:heroicons/heroicons.dart';
 import 'package:provider/provider.dart';
 import 'package:sizer/sizer.dart';
@@ -250,17 +251,21 @@ class _OtpScreenState extends State<OtpScreen> {
                       InkWell(
                         onTap:  provider.isLoading
                             ? null
-                            : () {
+                            : () async {
                           final otp = _controllers.map((c) => c.text).join();
                           if (otp.length < 4) {
                             provider.showToast(context, 'Please enter the complete 4-digit code', isSuccess: false);
                             return;
                           }
 
-                          provider.loginOtp(context, {
+                          await provider.loginOtp(context, {
                             'username': widget.email,
                             'otp': otp,
                           });
+
+                          if (provider.errorMessage == null && context.mounted) {
+                            context.go('/explore');
+                          }
                         },
                         child: Container(
                           alignment: Alignment.center,
